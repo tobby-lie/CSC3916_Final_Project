@@ -6,32 +6,7 @@ import fs from 'fs'
 import defaultImage from './../../client/assets/images/default.png'
 import User from "../models/user.model";
 import Shop from "../models/shop.model";
-
-// const create = (req, res) => {
-//     let form = new formidable.IncomingForm()
-//     form.keepExtensions = true
-//     form.parse(req, async (err, fields, files) => {
-//         if (err) {
-//             res.status(400).json({
-//                 message: "Image could not be uploaded"
-//             })
-//         }
-//         let charity = new Charity(fields)
-//         charity.owner= req.profile
-//         if(files.image){
-//             charity.image.data = fs.readFileSync(files.image.path)
-//             charity.image.contentType = files.image.type
-//         }
-//         try {
-//             let result = await charity.save()
-//             res.status(200).json(result)
-//         }catch (err){
-//             return res.status(400).json({
-//                 error: errorHandler.getErrorMessage(err)
-//             })
-//         }
-//     })
-// }
+import mongoose from "mongoose";
 
 const create = async (req, res) => {
     console.log(req.profile)
@@ -47,6 +22,26 @@ const create = async (req, res) => {
             error: errorHandler.getErrorMessage(err)
         })
     }
+}
+
+const one = async (req, res) => {
+    Charity.find({"_id": req.params.charityId}).select("name description updated owner").exec(function (err, charity) {
+        if (err) {
+            return res.status(403).json({success: false, message: "Unable to retrieve charity passed in."});
+        }
+        if (charity && charity.length > 0) {
+            return res.status(200).json({
+                success: true,
+                message: "Successfully retrieved charity.",
+                movie: charity
+            });
+        } else {
+            return res.status(404).json({
+                success: false,
+                message: "Unable to retrieve a match for charity passed in."
+            });
+        }
+    })
 }
 
 const charityByID = async (req, res, next, id) => {
@@ -170,6 +165,7 @@ const isOwner = (req, res, next) => {
 }
 
 export default {
+    one,
     create,
     charityByID,
     photo,

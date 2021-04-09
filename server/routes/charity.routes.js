@@ -9,8 +9,8 @@ const router = express.Router()
 router.route('/api/charities')
     .get(charityCtrl.list)
 
-router.route('/api/charity/:charityId')
-    .get(charityCtrl.read)
+router.route('/api/charities/:charityId')
+    .get(charityCtrl.one)
 
 router.route('/api/charities/by/:userId')
     .post(authCtrl.requireSignin, authCtrl.hasAuthorization, userCtrl.isSeller, charityCtrl.create)
