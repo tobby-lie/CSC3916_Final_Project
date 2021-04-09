@@ -1,3 +1,5 @@
+# CSC3916_Final_Project
+
 # Postman Tests:
 [![Run in Postman](https://run.pstmn.io/button.svg)](https://app.getpostman.com/run-collection/1f5e40454963c37be917#?env%5BFinal_Project_Env%5D=W3sia2V5IjoidXNlcklkIiwidmFsdWUiOiIiLCJlbmFibGVkIjp0cnVlfSx7ImtleSI6InRva2VuIiwidmFsdWUiOiIiLCJlbmFibGVkIjp0cnVlfV0=)
 
@@ -23,4 +25,4 @@ An online marketplace application with seller accounts, product search and sugge
    - To install dependencies, run ```  npm install  ``` or ``` yarn ```
    - To run the application for development, run ```  npm run development  ``` or ``` yarn development ```
 5. Open [localhost:3000](http://localhost:3000/) in the browser
----- # CSC3916_Final_Project
+
