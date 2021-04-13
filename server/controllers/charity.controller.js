@@ -33,7 +33,7 @@ const one = async (req, res) => {
             return res.status(200).json({
                 success: true,
                 message: "Successfully retrieved charity.",
-                movie: charity
+                charity: charity
             });
         } else {
             return res.status(404).json({

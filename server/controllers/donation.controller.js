@@ -43,7 +43,7 @@ const one = async (req, res) => {
             return res.status(200).json({
                 success: true,
                 message: "Successfully retrieved donation.",
-                movie: donation
+                donation: donation
             });
         } else {
             return res.status(404).json({
