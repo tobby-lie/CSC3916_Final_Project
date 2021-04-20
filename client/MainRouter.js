@@ -57,8 +57,10 @@ const MainRouter = () => {
 
       {/* Charity Routes */}
 
-      <PrivateRoute path="/charity/donations/:charityId" component={CharityDonations} /> 
+      <PrivateRoute path="/charity/donations/:charityId" component={CharityDonations} />
+      {/* display all charity donations */}
       <PrivateRoute path="/charity/charities" component={MyCharities} />
+      {/* view all my charities */}
       <PrivateRoute path="/charity/shop/new" component={NewCharity} />
       <PrivateRoute path="/charity/shop/edit/:shopId" component={EditCharity} />
 
