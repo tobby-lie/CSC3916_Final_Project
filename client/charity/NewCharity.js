@@ -50,7 +50,10 @@ export default function NewCharity() {
        
     const [values, setValues] = useState({
         name: '',
-        description: ''
+        description: '',
+        image: '',
+        redirect: false,
+        error: ''
         
   })
 
@@ -61,13 +64,16 @@ export default function NewCharity() {
       ? event.target.files[0]
       : event.target.value
     setValues({...values, [name]: value })
+    
   }
 
 
   const clickSubmit = () => {
+    
     let charityData = new FormData()
     values.name && charityData.append('name', values.name)
     values.description && charityData.append('description', values.description)
+    values.image && shopData.append('image', values.image)
     create({
         userId: jwt.user._id
     }, {
@@ -81,7 +87,7 @@ export default function NewCharity() {
     })
   }
     if (values.redirect) {
-        return (<Redirect to={'/seller/shops'}/>)
+        return (<Redirect to={'/charity/charities'}/>)
     }
        
     return (
@@ -93,6 +99,13 @@ export default function NewCharity() {
                     </Typography>
                     <br/>
                     
+                    <input accept="image/*" onChange={handleChange('image')} className={classes.input} id="icon-button-file" type="file" />
+                    <label htmlFor="icon-button-file">
+                        <Button variant="contained" color="secondary" component="span">
+                            Upload Logo
+                            <FileUpload/>
+                        </Button>
+                    </label> <span className={classes.filename}>{values.image ? values.image.name : ''}</span><br/>
                     <TextField id="name" label="Name" className={classes.textField} value={values.name} onChange={handleChange('name')} margin="normal"/><br/>
                     <TextField
                         id="multiline-flexible"
@@ -111,7 +124,7 @@ export default function NewCharity() {
                 </CardContent>
                 <CardActions>
                     <Button color="primary" variant="contained" onClick={clickSubmit} className={classes.submit}>Submit</Button>
-                    <Link to='/charity/shop/new' className={classes.submit}><Button variant="contained">Cancel</Button></Link>
+                    <Link to='/charity/charities' className={classes.submit}><Button variant="contained">Cancel</Button></Link>
                 </CardActions>
             </Card>
         </div>

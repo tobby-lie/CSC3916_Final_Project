@@ -1,12 +1,14 @@
 const create = async (params, credentials, shop) => {
     try {
-      let response = await fetch('/api/charities/by/'+ params.userId, {
+        console.log('shop', shop)
+        let response = await fetch('/api/charities/by/'+ params.userId, {
         method: 'POST',
         headers: {
           'Accept': 'application/json',
           'Authorization': 'Bearer ' + credentials.t
         },
         body: shop
+        
       })
         return response.json()
       } catch(err) { 
