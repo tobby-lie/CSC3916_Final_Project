@@ -1,4 +1,4 @@
-import React, {useState} from 'react'
+import React, { useState, useEffect } from 'react'
 import auth from './../auth/auth-helper'
 import Card from '@material-ui/core/Card'
 import CardContent from '@material-ui/core/CardContent'
@@ -8,9 +8,12 @@ import TextField from '@material-ui/core/TextField'
 import Typography from '@material-ui/core/Typography'
 import Divider from '@material-ui/core/Divider'
 import PropTypes from 'prop-types'
-import {makeStyles} from '@material-ui/core/styles'
+import { makeStyles } from '@material-ui/core/styles'
 import cart from './cart-helper.js'
-import {Link} from 'react-router-dom'
+import { Link } from 'react-router-dom'
+import { list } from '../charity/api-charity'
+// import "react-responsive-carousel/lib/styles/carousel.css";
+import { Carousel } from 'react-responsive-carousel';
 
 const useStyles = makeStyles(theme => ({
   card: {
@@ -91,15 +94,36 @@ const useStyles = makeStyles(theme => ({
   }
 }))
 
-export default function CartItems (props) {
+export default function CartItems(props) {
   const classes = useStyles()
   const [cartItems, setCartItems] = useState(cart.getCart())
+  const [charities, setCharities] = useState([])
+
+
+  useEffect(() => {
+    const abortController = new AbortController()
+    const signal = abortController.signal
+    list(signal).then((data) => {
+      if (data.error) {
+        console.log(data.error)
+      } else {
+        setCharities(data)
+      }
+    })
+    return function cleanup() {
+      abortController.abort()
+    }
+
+  }, [])
+
+
+
 
   const handleChange = index => event => {
     let updatedCartItems = cartItems
-    if(event.target.value == 0){
+    if (event.target.value == 0) {
       updatedCartItems[index].quantity = 1
-    }else{
+    } else {
       updatedCartItems[index].quantity = event.target.value
     }
     setCartItems([...updatedCartItems])
@@ -108,13 +132,13 @@ export default function CartItems (props) {
 
   const getTotal = () => {
     return cartItems.reduce((a, b) => {
-        return a + (b.quantity*b.product.price)
+      return a + (b.quantity * b.product.price)
     }, 0)
   }
 
-  const removeItem = index => event =>{
+  const removeItem = index => event => {
     let updatedCartItems = cart.removeItem(index)
-    if(updatedCartItems.length == 0){
+    if (updatedCartItems.length == 0) {
       props.setCheckout(false)
     }
     setCartItems(updatedCartItems)
@@ -124,63 +148,95 @@ export default function CartItems (props) {
     props.setCheckout(true)
   }
 
-    return (<Card className={classes.card}>
-      <Typography type="title" className={classes.title}>
-        Shopping Cart
+  return (<Card className={classes.card}>
+    <Typography type="title" className={classes.title}>
+      Shopping Cart
       </Typography>
-      {cartItems.length>0 ? (<span>
-          {cartItems.map((item, i) => {
-            return <span key={i}><Card className={classes.cart}>
-              <CardMedia
-                className={classes.cover}
-                image={'/api/product/image/'+item.product._id}
-                title={item.product.name}
-              />
-              <div className={classes.details}>
-                <CardContent className={classes.content}>
-                  <Link to={'/product/'+item.product._id}><Typography type="title" component="h3" className={classes.productTitle} color="primary">{item.product.name}</Typography></Link>
-                  <div>
-                    <Typography type="subheading" component="h3" className={classes.price} color="primary">$ {item.product.price}</Typography>
-                    <span className={classes.itemTotal}>${item.product.price * item.quantity}</span>
-                    <span className={classes.itemShop}>Shop: {item.product.shop.name}</span>
-                  </div>
-                </CardContent>
-                <div className={classes.subheading}>
-                  Quantity: <TextField
-                              value={item.quantity}
-                              onChange={handleChange(i)}
-                              type="number"
-                              inputProps={{
-                                  min:1
-                              }}
-                              className={classes.textField}
-                              InputLabelProps={{
-                                shrink: true,
-                              }}
-                              margin="normal"/>
-                            <Button className={classes.removeButton} color="primary" onClick={removeItem(i)}>x Remove</Button>
-                </div>
+    {cartItems.length > 0 ? (<span>
+      {cartItems.map((item, i) => {
+        return <span key={i}><Card className={classes.cart}>
+          <CardMedia
+            className={classes.cover}
+            image={'/api/product/image/' + item.product._id}
+            title={item.product.name}
+          />
+          <div className={classes.details}>
+            <CardContent className={classes.content}>
+              <Link to={'/product/' + item.product._id}><Typography type="title" component="h3" className={classes.productTitle} color="primary">{item.product.name}</Typography></Link>
+              <div>
+                <Typography type="subheading" component="h3" className={classes.price} color="primary">$ {item.product.price}</Typography>
+                <span className={classes.itemTotal}>${item.product.price * item.quantity}</span>
+                <span className={classes.itemShop}>Shop: {item.product.shop.name}</span>
               </div>
-            </Card>
-            <Divider/>
-          </span>})
-        }
-        <div className={classes.checkout}>
-          <span className={classes.total}>Total: ${getTotal()}</span>
-          {!props.checkout && (auth.isAuthenticated()?
-            <Button color="secondary" variant="contained" onClick={openCheckout}>Checkout</Button>
-            :
-            <Link to="/signin">
-              <Button color="primary" variant="contained">Sign in to checkout</Button>
-            </Link>)}
-          <Link to='/' className={classes.continueBtn}>
-            <Button variant="contained">Continue Shopping</Button>
-          </Link>
+            </CardContent>
+            <div className={classes.subheading}>
+              Quantity: <TextField
+                value={item.quantity}
+                onChange={handleChange(i)}
+                type="number"
+                inputProps={{
+                  min: 1
+                }}
+                className={classes.textField}
+                InputLabelProps={{
+                  shrink: true,
+                }}
+                margin="normal" />
+              <Button className={classes.removeButton} color="primary" onClick={removeItem(i)}>x Remove</Button>
+            </div>
+          </div>
+        </Card>
+          <Divider />
+        </span>
+      })
+      }
+
+      <div>
+        <p>Donate to charity</p>
+        <Carousel showArrows={true}>
+          <div>
+            <img src="assets/1.jpeg" />
+            <p className="legend">Legend 1</p>
+          </div>
+          <div>
+            <img src="assets/2.jpeg" />
+            <p className="legend">Legend 2</p>
+          </div>
+          <div>
+            <img src="assets/3.jpeg" />
+            <p className="legend">Legend 3</p>
+          </div>
+
+        </Carousel>
+
+
+
+        <div>
+          {
+            charities.map(charity => {
+              return <p key={charity._id}>{charity.name}</p>
+            })
+          }
         </div>
-      </span>) :
+      </div>
+
+
+      <div className={classes.checkout}>
+        <span className={classes.total}>Total: ${getTotal()}</span>
+        {!props.checkout && (auth.isAuthenticated() ?
+          <Button color="secondary" variant="contained" onClick={openCheckout}>Checkout</Button>
+          :
+          <Link to="/signin">
+            <Button color="primary" variant="contained">Sign in to checkout</Button>
+          </Link>)}
+        <Link to='/' className={classes.continueBtn}>
+          <Button variant="contained">Continue Shopping</Button>
+        </Link>
+      </div>
+    </span>) :
       <Typography variant="subtitle1" component="h3" color="primary">No items added to your cart.</Typography>
     }
-    </Card>)
+  </Card>)
 }
 
 CartItems.propTypes = {
