@@ -1,6 +1,6 @@
 # CSC3916_Final_Project
 
-[![Run in Postman](https://run.pstmn.io/button.svg)](https://app.getpostman.com/run-collection/e06303d13c3265f6a065?action=collection%2Fimport#?env%5BFinal_Project_Env%5D=W3sia2V5IjoidXNlcklkIiwidmFsdWUiOiIiLCJlbmFibGVkIjp0cnVlfSx7ImtleSI6InRva2VuIiwidmFsdWUiOiIiLCJlbmFibGVkIjp0cnVlfV0=)
+[![Run in Postman](https://run.pstmn.io/button.svg)](https://app.getpostman.com/run-collection/dcd4a1b7358135b39d46?action=collection%2Fimport#?env%5Bfinal_project_env%5D=W3sia2V5IjoidXNlcklkIiwidmFsdWUiOiIiLCJlbmFibGVkIjp0cnVlfSx7ImtleSI6InRva2VuIiwidmFsdWUiOiIiLCJlbmFibGVkIjp0cnVlfV0=)
 
 # MERN Marketplace
 
