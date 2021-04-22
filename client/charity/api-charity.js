@@ -1,4 +1,4 @@
-const create = async (params, credentials, charity) => {
+const create = async (params, credentials, shop) => {
     try {
       let response = await fetch('/api/charities/by/'+ params.userId, {
         method: 'POST',
@@ -6,16 +6,15 @@ const create = async (params, credentials, charity) => {
           'Accept': 'application/json',
           'Authorization': 'Bearer ' + credentials.t
         },
-        body: charity
+        body: shop
       })
         return response.json()
       } catch(err) { 
         console.log(err)
       }
   }
-  
-  const list = async (signal) => { 
-    //   approved
+
+  const list = async (signal) => {
     try {
       let response = await fetch('/api/charities', {
         method: 'GET',
@@ -26,7 +25,6 @@ const create = async (params, credentials, charity) => {
       console.log(err)
     }
   }
-  
   const listByOwner = async (params, credentials, signal) => {
     try {
       let response = await fetch('/api/charities/by/'+params.userId, {
@@ -42,20 +40,8 @@ const create = async (params, credentials, charity) => {
       console.log(err)
     }
   }
-  
-  const read = async (params, signal) => {
-    try {
-      let response = await fetch('/api/charity/' + params.charityId, {
-        method: 'GET',
-        signal: signal,
-      })
-      return response.json()
-    }catch(err) {
-      console.log(err)
-    }
-  }
-  
-  const update = async (params, credentials, charity) => {
+
+  const update = async (params, credentials, shop) => {
     try {
       let response = await fetch('/api/charities/' + params.charityId, {
         method: 'PUT',
@@ -63,14 +49,13 @@ const create = async (params, credentials, charity) => {
           'Accept': 'application/json',
           'Authorization': 'Bearer ' + credentials.t
         },
-        body: charity
+        body: shop
       })
       return response.json()
     } catch(err) {
       console.log(err)
     }
   }
-  
   const remove = async (params, credentials) => {
     try {
       let response = await fetch('/api/charities/' + params.charityId, {
@@ -86,13 +71,11 @@ const create = async (params, credentials, charity) => {
       console.log(err)
     }
   }
-  
   export {
     create,
     list,
     listByOwner,
-    read,
+    //read,
     update,
     remove
   }
-  
