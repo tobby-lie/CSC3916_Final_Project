@@ -9,19 +9,31 @@ import Shop from "../models/shop.model";
 import mongoose from "mongoose";
 
 const create = async (req, res) => {
-    console.log(req.profile)
-    const charity = new Charity(req.body)
-    charity.owner= req.profile
-    try {
-        await charity.save()
-        return res.status(200).json({
-            message: "Successfully created charity!"
-        })
-    } catch (err) {
-        return res.status(400).json({
-            error: errorHandler.getErrorMessage(err)
-        })
-    }
+    let form = new formidable.IncomingForm()
+    form.keepExtensions = true
+    form.parse(req, async (err, fields, files) => {
+        if(err){
+            res.status(400).json({
+                message: "Image could not be uploaded"
+            })
+        }
+        const charity = new Charity(fields)
+        charity.owner= req.profile
+        if(files.image){
+            charity.image.data = fs.readFileSync(files.image.path)
+            charity.image.contentType = files.image.type
+        }
+        try {
+            await charity.save()
+            return res.status(200).json({
+                message: "Successfully created charity!"
+            })
+        } catch (err) {
+            return res.status(400).json({
+                error: errorHandler.getErrorMessage(err)
+            })
+        }
+    })
 }
 
 const one = async (req, res) => {
