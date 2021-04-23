@@ -16,8 +16,7 @@ import Divider from '@material-ui/core/Divider'
 import auth from './../auth/auth-helper'
 import {listByOwner} from './api-charity'
 import {Redirect, Link} from 'react-router-dom'
-import DeleteShop from '../shop/DeleteShop'
-//import DeleteShop from './DeleteShop'
+import DeleteCharity from './DeleteCharity'
 
 const useStyles = makeStyles(theme => ({
   root: theme.mixins.gutters({
@@ -106,7 +105,7 @@ export default function MyCharities() {
                                             <Edit/>
                                         </IconButton>
                                     </Link>
-                                                                      
+                                    <DeleteCharity charity={charity} onRemove={removeCharity}/>                                
                                   </ListItemSecondaryAction>)
                                 }                                
                         </ListItem>

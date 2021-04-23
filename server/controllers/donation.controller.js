@@ -130,6 +130,26 @@ const listByOwner = async (req, res) => {
     }
 }
 
+const listByCharity = async (req, res) => {
+    Donation.find({"charity": req.params.charityId}).select("amount owner charity").exec(function (err, donations) {
+        if (err) {
+            return res.status(403).json({success: false, message: "Unable to retrieve donations from charity passed in."});
+        }
+        if (donations && donations.length > 0) {
+            return res.status(200).json({
+                success: true,
+                message: "Successfully retrieved donations from charity.",
+                donation: donations
+            });
+        } else {
+            return res.status(404).json({
+                success: false,
+                message: "Unable to retrieve a match for donations from charity passed in."
+            });
+        }
+    })
+}
+
 export default {
     one,
     create,
@@ -137,6 +157,7 @@ export default {
     defaultPhoto,
     list,
     listByOwner,
+    listByCharity,
     read,
     update,
     remove
