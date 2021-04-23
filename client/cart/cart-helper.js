@@ -56,7 +56,21 @@ const cart = {
       localStorage.removeItem('cart')
       cb()
     }
-  }
+  },
+
+  toggleDonation(val) {
+    if (typeof window !== "undefined") {
+      localStorage.setItem('donation', val)
+
+    }
+  },
+
+  getDonation(val) {
+    if (typeof window !== "undefined") {
+      return localStorage.getItem('donation')
+
+    }
+  },
 }
 
 export default cart
