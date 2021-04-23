@@ -1,6 +1,6 @@
 const create = async (params, credentials, shop) => {
     try {
-        console.log('shop', shop)
+        
         let response = await fetch('/api/charities/by/'+ params.userId, {
         method: 'POST',
         headers: {
@@ -43,7 +43,24 @@ const create = async (params, credentials, shop) => {
     }
   }
 
+  const read = async (params, signal) => {
+    console.log('READ Params', params)
+    try {
+      let response = await fetch('/api/charity/' + params.charityId, {
+        method: 'GET',
+        signal: signal,
+      })
+      
+      //console.log("Charity Response", response.json())
+      return response.json()
+      
+    }catch(err) {
+      console.log(err)
+    }
+  }
+
   const update = async (params, credentials, shop) => {
+    console.log('Update Params', params)
     try {
       let response = await fetch('/api/charities/' + params.charityId, {
         method: 'PUT',
@@ -53,6 +70,7 @@ const create = async (params, credentials, shop) => {
         },
         body: shop
       })
+      
       return response.json()
     } catch(err) {
       console.log(err)
@@ -60,7 +78,7 @@ const create = async (params, credentials, shop) => {
   }
   const remove = async (params, credentials) => {
     try {
-      let response = await fetch('/api/charities/' + params.charityId, {
+      let response = await fetch('/api/charities/' + params.shopId, {
         method: 'DELETE',
         headers: {
           'Accept': 'application/json',
@@ -68,6 +86,7 @@ const create = async (params, credentials, shop) => {
           'Authorization': 'Bearer ' + credentials.t
         }
       })
+      
       return response.json()
     } catch(err) {
       console.log(err)
@@ -77,7 +96,7 @@ const create = async (params, credentials, shop) => {
     create,
     list,
     listByOwner,
-    //read,
+    read,
     update,
     remove
   }
