@@ -18,6 +18,9 @@ router.route('/api/donations/by/:userId')
     .post(authCtrl.requireSignin, donationCtrl.create)
     .get(authCtrl.requireSignin, donationCtrl.listByOwner)
 
+router.route('/api/donations/from/:charityId')
+    .get(donationCtrl.listByCharity)
+
 router.route('/api/donations/:donationId')
     .put(authCtrl.requireSignin, donationCtrl.update)
     .delete(authCtrl.requireSignin, donationCtrl.remove)
