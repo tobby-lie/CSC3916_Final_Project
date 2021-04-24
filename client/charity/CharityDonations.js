@@ -1,9 +1,140 @@
-import React from 'react'
+import React, {useState, useEffect} from 'react'
+import { makeStyles } from '@material-ui/core/styles'
+import Paper from '@material-ui/core/Paper'
+import List from '@material-ui/core/List'
+import ListItem from '@material-ui/core/ListItem'
+import ListItemText from '@material-ui/core/ListItemText'
+import Typography from '@material-ui/core/Typography'
+import ExpandLess from '@material-ui/icons/ExpandLess'
+import ExpandMore from '@material-ui/icons/ExpandMore'
+import Collapse from '@material-ui/core/Collapse'
+import Divider from '@material-ui/core/Divider'
+import auth from './../auth/auth-helper'
+import {listByCharity, listByOwner} from './api-donations'
+import { read, update } from './api-charity.js'
+//import ProductOrderEdit from './ProductOrderEdit'
 
-export default function CharityDonations() {
+const useStyles = makeStyles(theme => ({
+    root: theme.mixins.gutters({
+      maxWidth: 600,
+      margin: 'auto',
+      padding: theme.spacing(3),
+      marginTop: theme.spacing(5)
+    }),
+    title: {
+      margin: `${theme.spacing(3)}px 0 ${theme.spacing(3)}px ${theme.spacing(1)}px` ,
+      color: theme.palette.protectedTitle,
+      fontSize: '1.2em'
+    },
+    subheading: {
+      marginTop: theme.spacing(1),
+      color: '#434b4e',
+      fontSize: '1.1em'
+    },
+    customerDetails: {
+      paddingLeft: '36px',
+      paddingTop: '16px',
+      backgroundColor:'#f8f8f8'
+    },
+    checkout: {
+        float: 'right',
+        margin: '24px'
+    },
+    total: {
+        fontSize: '1.2em',
+        color: 'rgb(53, 97, 85)',
+        marginRight: '16px',
+        fontWeight: '600',
+        verticalAlign: 'bottom'
+    }
+
+  }))
+
+  
+export default function CharityDonations({match}) {
+    console.log("DONATIONS MATCH: ", match)
+    const classes = useStyles()
+    const [orders, setOrders] = useState([])
+    const [values, setValues] = useState({
+        name: ''
+
+    })
+    
+
+
+    const jwt = auth.isAuthenticated()
+    useEffect(() => {
+      const abortController = new AbortController()
+      const signal = abortController.signal
+      listByCharity({
+        charityId: match.params.charityId
+      }, {t: jwt.token}, signal).then((data) => {
+        if (data.error) {
+          console.log(data)
+        } else {
+          console.log("DATA", data)
+            setOrders(data.donation)
+        }
+      })
+      return function cleanup(){
+        abortController.abort()
+      }
+    }, [])
+
+    console.log("Orders", orders)
+    //console.log("PARAMS", params)
+
+    const getCharityName = (match) => {
+        useEffect(() => {
+            const abortController = new AbortController()
+            const signal = abortController.signal
+            read({
+                charityId: match.params.shopId
+            }, signal).then((data) => {
+                
+              if (data.error) {
+                setValues({...values, error: data.error})
+              } else {
+                setValues({...values, name: data.name})
+                
+                //setValues({...values, id: data._id, name: data.charity[0].name, description: data.description, owner: data.owner.name})
+              }
+            })
+            return function cleanup(){
+              abortController.abort()
+            }
+          }, [])
+    }
+
+    console.log("GetCharityName Values", values)
+    const getTotal = () => {
+        return orders.reduce((amount, b) => {
+           return amount + b.amount
+        }, 0)
+      }
+    
     return (
-        <div>
-            Hello Charity Donations
-        </div>
+    <div>
+      <Paper className={classes.root} elevation={4}>
+        <Typography type="title" className={classes.title}>
+          Donations for ${getCharityName()}.values.name
+        </Typography>
+        <List dense >
+        {console.log("RETURN ORDERS", orders)}
+          {orders.map((order, index) => {
+            return   <span key={index}>
+                <ListItemText primary={order.amount}/>
+              
+                
+              
+          </span>})
+          
+        }
+          <div className={classes.checkout}>
+                    <span className={classes.total}>Total: ${getTotal()}</span>
+          </div>
+          </List>
+      </Paper>
+    </div>
     )
 }
