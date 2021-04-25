@@ -10,7 +10,7 @@ import ExpandMore from '@material-ui/icons/ExpandMore'
 import Collapse from '@material-ui/core/Collapse'
 import Divider from '@material-ui/core/Divider'
 import auth from './../auth/auth-helper'
-import {listByCharity, listByOwner} from './api-donations'
+import {listByCharity, listByOwner, listByName } from './api-donations'
 import { read, update } from './api-charity.js'
 //import ProductOrderEdit from './ProductOrderEdit'
 
@@ -38,7 +38,7 @@ const useStyles = makeStyles(theme => ({
     },
     checkout: {
         float: 'right',
-        margin: '24px'
+        margin: '8px'
     },
     total: {
         fontSize: '1.2em',
@@ -56,11 +56,16 @@ export default function CharityDonations({match}) {
     const classes = useStyles()
     const [orders, setOrders] = useState([])
     const [values, setValues] = useState({
-        name: ''
-
+      name: '',
+      description: '',
+      image: '',
+      redirect: false,
+      error: '',
+      id: ''
     })
-    
-
+    const [owner, setOwner] = useState({
+      name: ''
+    })
 
     const jwt = auth.isAuthenticated()
     useEffect(() => {
@@ -81,32 +86,49 @@ export default function CharityDonations({match}) {
       }
     }, [])
 
+    /*useEffect(() =>{
+      const abortController = new AbortController()
+      const signal = abortController.signal
+      listByName({
+        userId: orders
+      }, {t: jwt.token}, signal).then((data) => {
+        if (data.error) {
+          setOwner({...owner, error: data.error})
+        } else {
+          setOwner({...owner, name: data.charity[0].name})
+        }
+      })
+      return function cleanup(){
+        abortController.abort()
+      }
+    }, [])*/
+
+    
+    useEffect(() =>{
+      const abortController = new AbortController()
+      const signal = abortController.signal
+      listByOwner({
+        charityId: match.params.charityId
+      }, {t: jwt.token}, signal).then((data) => {
+        if (data.error) {
+          setValues({...values, error: data.error, 'redirect': true})
+        } else {
+          setValues({...values, name: data.charity[0].name})
+        }
+      })
+      return function cleanup(){
+        abortController.abort()
+      }
+    }, [])
+    
+    console.log("VALUES", values)
     console.log("Orders", orders)
     //console.log("PARAMS", params)
 
-    const getCharityName = (match) => {
-        useEffect(() => {
-            const abortController = new AbortController()
-            const signal = abortController.signal
-            read({
-                charityId: match.params.shopId
-            }, signal).then((data) => {
-                
-              if (data.error) {
-                setValues({...values, error: data.error})
-              } else {
-                setValues({...values, name: data.name})
-                
-                //setValues({...values, id: data._id, name: data.charity[0].name, description: data.description, owner: data.owner.name})
-              }
-            })
-            return function cleanup(){
-              abortController.abort()
-            }
-          }, [])
+    if (values.redirect) {
+      return (<Redirect to={'/charity/charities'}/>)
     }
-
-    console.log("GetCharityName Values", values)
+   
     const getTotal = () => {
         return orders.reduce((amount, b) => {
            return amount + b.amount
@@ -117,7 +139,7 @@ export default function CharityDonations({match}) {
     <div>
       <Paper className={classes.root} elevation={4}>
         <Typography type="title" className={classes.title}>
-          Donations for ${getCharityName()}.values.name
+          Donations for {values.name}
         </Typography>
         <List dense >
         {console.log("RETURN ORDERS", orders)}
@@ -131,7 +153,7 @@ export default function CharityDonations({match}) {
           
         }
           <div className={classes.checkout}>
-                    <span className={classes.total}>Total: ${getTotal()}</span>
+            <span className={classes.total}>Total: ${getTotal()}</span>
           </div>
           </List>
       </Paper>
