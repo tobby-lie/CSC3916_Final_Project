@@ -78,30 +78,29 @@ export default function CharityDonations({match}) {
           console.log(data)
         } else {
           console.log("DATA", data)
-            setOrders(data.donation)
+          for (let i = 0; i < data.donation.length; i++) {
+            const userId = data.donation[i];
+            listByName({
+              userId: userId
+          }, {t: jwt.token}, signal).then((userData) => {
+            if (userData.error) {
+              setOwner({...owner, error: data.error})
+            } else{
+
+              data.donation[i].username = userData[0].owner.name
+            }
+          }).catch(error => {
+            console.log("ERROR", error)
+          })
+          }
+          
         }
       })
       return function cleanup(){
         abortController.abort()
       }
     }, [])
-
-    /*useEffect(() =>{
-      const abortController = new AbortController()
-      const signal = abortController.signal
-      listByName({
-        userId: orders
-      }, {t: jwt.token}, signal).then((data) => {
-        if (data.error) {
-          setOwner({...owner, error: data.error})
-        } else {
-          setOwner({...owner, name: data.charity[0].name})
-        }
-      })
-      return function cleanup(){
-        abortController.abort()
-      }
-    }, [])*/
+ 
 
     
     useEffect(() =>{
@@ -120,6 +119,27 @@ export default function CharityDonations({match}) {
         abortController.abort()
       }
     }, [])
+
+    const handleChange = (event) =>{
+      let userId = event
+      console.log("USERID", userId)
+        const abortController = new AbortController()
+        const signal = abortController.signal
+        listByName({
+          userId: userId
+      }, {t: jwt.token}, signal).then((data) => {
+        if (data.error) {
+          setOwner({...owner, error: data.error})
+        } else{
+          setOwner({...owner, name: data[0].owner.name})
+        }
+      })
+      return function cleanup(){
+        abortController.abort()
+      }
+    }
+
+    
     
     console.log("VALUES", values)
     console.log("Orders", orders)
@@ -145,7 +165,9 @@ export default function CharityDonations({match}) {
         {console.log("RETURN ORDERS", orders)}
           {orders.map((order, index) => {
             return   <span key={index}>
-                <ListItemText primary={order.amount}/>
+                {/*{handleChange(order.owner)}*/}
+                <ListItemText  primary={owner.userName} secondary={order.amount}/>
+               
               
                 
               
