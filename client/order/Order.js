@@ -8,7 +8,7 @@ import Divider from '@material-ui/core/Divider'
 import {makeStyles} from '@material-ui/core/styles'
 import {read} from './api-order.js'
 import {Link} from 'react-router-dom'
-
+import cart from '../cart/cart-helper'
 const useStyles = makeStyles(theme => ({
   card: {
     textAlign: 'center',
@@ -117,12 +117,12 @@ export default function Order({match}) {
     }
   }, [])
 
-  const getTotal = () => {
-    return order.products.reduce((a, b) => {
-       const quantity = b.status == "Cancelled" ? 0 : b.quantity
-        return a + (quantity*b.product.price)
-    }, 0)
-  }
+  // const getTotal = () => {
+  //   return order.products.reduce((a, b) => {
+  //      const quantity = b.status == "Cancelled" ? 0 : b.quantity
+  //       return a + (quantity*b.product.price)
+  //   }, 0)
+  // }
 
     return (
       <Card className={classes.card}>
@@ -157,7 +157,7 @@ export default function Order({match}) {
                     </span>})
                   }
                   <div className={classes.checkout}>
-                    <span className={classes.total}>Total: ${getTotal()}</span>
+                    <span className={classes.total}>Total: ${cart.getTotal()}</span>
                   </div>
                 </Card>
             </Grid>

@@ -95,16 +95,20 @@ const useStyles = makeStyles(theme => ({
 export default function CartItems(props) {
   const classes = useStyles()
   const [cartItems, setCartItems] = useState(cart.getCart())
-  const [donation, setDonation] = useState(cart.getDonation())
+  const [donation, setDonation] = useState(false)
   const [charities, setCharities] = useState([])
   const [slideIndex, setslideIndex] = useState(1)
 
   useEffect(() => {
+    console.log('get donation', cart.getDonation())
+    setDonation(cart.getDonation())
+    console.log('donate', typeof (donation))
+
     const abortController = new AbortController()
     const signal = abortController.signal
     list(signal).then((data) => {
       if (data.error) {
-        console.log(data.error)
+        console.log('ERROR', data.error)
       } else {
         setCharities(data)
         showSlides(1)
@@ -127,23 +131,17 @@ export default function CartItems(props) {
     } else {
       updatedCartItems[index].quantity = event.target.value
     }
+
+
     setCartItems([...updatedCartItems])
     cart.updateCart(index, event.target.value)
+
+
   }
 
-  const getSubtotal = () => {
-    return cartItems.reduce((a, b) => {
-      return a + (b.quantity * b.product.price)
-    }, 0)
-  }
 
-  const getTotal = () => {
-    return getSubtotal() + calculateDonation()
-  }
 
-  const calculateDonation = () => {
-    return (Math.round(getSubtotal()) - getSubtotal())
-  }
+
 
   const removeItem = index => event => {
     let updatedCartItems = cart.removeItem(index)
@@ -157,10 +155,12 @@ export default function CartItems(props) {
     props.setCheckout(true)
   }
 
-  const donate = (val) => {
-    console.log('donate')
+  const setDonate = (val) => {
+    console.log('setting donate')
     cart.toggleDonation(val)
+    setDonation(val)
   }
+
 
 
   // Next/previous controls
@@ -180,8 +180,8 @@ export default function CartItems(props) {
     let i;
     let slides = document.getElementsByClassName("mySlides");
     let dots = document.getElementsByClassName("dot");
-    if (n > slides.length) { setslideIndex(1) }
-    if (n < 1) { setslideIndex(slides.length) }
+    if (n > slides.length) { setslideIndex(1); n = 1 }
+    if (n < 1) { setslideIndex(slides.length); n = slides.length }
     for (i = 0; i < slides.length; i++) {
       slides[i].style.display = "none";
       // console.log(i, slides[i].classList)
@@ -243,9 +243,9 @@ export default function CartItems(props) {
           </span>
         })
         }
-        <br/>
+        <br />
         {/* <div style={{backgroundColor: '#ffffff', borderRadius: '16px', paddingTop: '1rem', paddingBottom: '1rem', marginTop: '1rem'}}> */}
-        <Card style={{paddingBottom: '3rem', paddingTop: '1rem'}}>
+        <Card style={{ paddingBottom: '3rem', paddingTop: '1rem' }}>
           <p style={{ marginLeft: '1rem' }}>Donate to charity</p>
           <div className="slideshow-container">
             {
@@ -255,9 +255,16 @@ export default function CartItems(props) {
                     <div className="numbertext">{i + 1} / {charities.length}</div>
                     <h2 style={{ textAlign: 'center' }}>{charity.name}</h2>
                     <h4 style={{ textAlign: 'center' }}>{charity.description}</h4>
-                    <div className="text">{charity.description}</div>
                     <div style={{ display: 'flex', justifyContent: 'center', paddingLeft: '3rem', paddingRight: '3rem' }}>
-                      <Button color="secondary" variant="contained" onClick={() => donate(true)}>Round Up $1 and Donate to this Charity</Button>
+                      {/* {
+                        'val: ' + donation + ", type: " + typeof (donation)
+                      } */}
+                      {
+                        (donation == false) ? <Button color="secondary" variant="contained" onClick={() => setDonate(true)}>Round Up $1 and Donate to this Charity</Button>
+                          :
+                          <p>Thank You!</p>
+                      }
+
                     </div>
                   </div>
                 )
@@ -294,15 +301,28 @@ export default function CartItems(props) {
 
 
         <div className={classes.checkout}>
-          <div className={classes.total}>Charity Round Up: ${Math.round((calculateDonation()) * 100) / 100}</div>
-          <div className={classes.total}>Total: ${Math.round(getTotal() * 100) / 100}</div>
 
-          {!props.checkout && (auth.isAuthenticated() ?
-            <Button color="secondary" variant="contained" onClick={openCheckout}>Checkout</Button>
-            :
-            <Link to="/signin">
-              <Button color="primary" variant="contained">Sign in to checkout</Button>
-            </Link>)}
+          {
+            donation &&
+            <>
+              <Button color="primary" variant="contained" onClick={() => setDonate(false)}>X Cancel Donation</Button>
+
+              <div className={classes.total}>Charity Round Up: ${Math.round((cart.calculateDonation()) * 100) / 100}
+
+              </div>
+
+            </>
+          }
+          <div className={classes.total}>Total: ${Math.round(cart.getTotal() * 100) / 100}
+          </div>
+          <div>
+            {!props.checkout && (auth.isAuthenticated() ?
+              <Button color="secondary" variant="contained" onClick={openCheckout}>Checkout</Button>
+              :
+              <Link to="/signin">
+                <Button color="primary" variant="contained">Sign in to checkout</Button>
+              </Link>)}
+          </div>
           <Link to='/' className={classes.continueBtn}>
             <Button variant="contained">Continue Shopping</Button>
           </Link>
