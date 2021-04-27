@@ -50,6 +50,20 @@ const useStyles = makeStyles(theme => ({
 
 }))
 
+export default function CharityDonations({ match }) {
+    const classes = useStyles()
+    const [orders, setOrders] = useState([])
+    const [values, setValues] = useState({
+      name: '',
+      description: '',
+      image: '',
+      redirect: false,
+      error: '',
+      id: ''
+  })
+    const [owner, setOwner] = useState({
+      name: ''
+    })
     const jwt = auth.isAuthenticated()
     useEffect(() => {
       
@@ -83,25 +97,6 @@ const useStyles = makeStyles(theme => ({
       }, { t: jwt.token }, signal)
 
       let count = 0;
-      await data.donation.forEach(async (d) => {
-
-        const abortController2 = new AbortController()
-        const signal2 = abortController.signal
-        // console.log('in for each', d)
-        const userId = d.owner;
-        let newData = await listByName({
-          userId: userId
-        }, { t: jwt.token }, signal2);
-
-        
-
-        // d.username = newData.name
-        console.log('newData', newData)
-        data.donation[count].username = newData[0].owner.name
-        setOrders(data.donation)
-
-        count += 1;
-      })
       
       listByName({
         userId: orders
@@ -117,7 +112,7 @@ const useStyles = makeStyles(theme => ({
         abortController.abort()
       }
     
-    
+      
     }, [])
     
     console.log("VALUES", values)
@@ -130,9 +125,7 @@ const useStyles = makeStyles(theme => ({
     }
 
 
-    return function cleanup() {
-      abortController.abort()
-    }
+    
   
 
 
