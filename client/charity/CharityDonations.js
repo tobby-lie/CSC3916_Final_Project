@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react'
+import React, { useState, useEffect } from 'react'
 import { makeStyles } from '@material-ui/core/styles'
 import Paper from '@material-ui/core/Paper'
 import List from '@material-ui/core/List'
@@ -10,62 +10,45 @@ import ExpandMore from '@material-ui/icons/ExpandMore'
 import Collapse from '@material-ui/core/Collapse'
 import Divider from '@material-ui/core/Divider'
 import auth from './../auth/auth-helper'
-import {listByCharity, listByOwner, listByName } from './api-donations'
+import { listByCharity, listByOwner, listByName } from './api-donations'
 import { read, update } from './api-charity.js'
 //import ProductOrderEdit from './ProductOrderEdit'
 
 const useStyles = makeStyles(theme => ({
-    root: theme.mixins.gutters({
-      maxWidth: 600,
-      margin: 'auto',
-      padding: theme.spacing(3),
-      marginTop: theme.spacing(5)
-    }),
-    title: {
-      margin: `${theme.spacing(3)}px 0 ${theme.spacing(3)}px ${theme.spacing(1)}px` ,
-      color: theme.palette.protectedTitle,
-      fontSize: '1.2em'
-    },
-    subheading: {
-      marginTop: theme.spacing(1),
-      color: '#434b4e',
-      fontSize: '1.1em'
-    },
-    customerDetails: {
-      paddingLeft: '36px',
-      paddingTop: '16px',
-      backgroundColor:'#f8f8f8'
-    },
-    checkout: {
-        float: 'right',
-        margin: '8px'
-    },
-    total: {
-        fontSize: '1.2em',
-        color: 'rgb(53, 97, 85)',
-        marginRight: '16px',
-        fontWeight: '600',
-        verticalAlign: 'bottom'
-    }
+  root: theme.mixins.gutters({
+    maxWidth: 600,
+    margin: 'auto',
+    padding: theme.spacing(3),
+    marginTop: theme.spacing(5)
+  }),
+  title: {
+    margin: `${theme.spacing(3)}px 0 ${theme.spacing(3)}px ${theme.spacing(1)}px`,
+    color: theme.palette.protectedTitle,
+    fontSize: '1.2em'
+  },
+  subheading: {
+    marginTop: theme.spacing(1),
+    color: '#434b4e',
+    fontSize: '1.1em'
+  },
+  customerDetails: {
+    paddingLeft: '36px',
+    paddingTop: '16px',
+    backgroundColor: '#f8f8f8'
+  },
+  checkout: {
+    float: 'right',
+    margin: '8px'
+  },
+  total: {
+    fontSize: '1.2em',
+    color: 'rgb(53, 97, 85)',
+    marginRight: '16px',
+    fontWeight: '600',
+    verticalAlign: 'bottom'
+  }
 
-  }))
-
-  
-export default function CharityDonations({match}) {
-    console.log("DONATIONS MATCH: ", match)
-    const classes = useStyles()
-    const [orders, setOrders] = useState([])
-    const [values, setValues] = useState({
-      name: '',
-      description: '',
-      image: '',
-      redirect: false,
-      error: '',
-      id: ''
-    })
-    const [owner, setOwner] = useState({
-      name: ''
-    })
+}))
 
     const jwt = auth.isAuthenticated()
     useEffect(() => {
@@ -97,12 +80,27 @@ export default function CharityDonations({match}) {
       const signal = abortController.signal
       listByOwner({
         charityId: match.params.charityId
-      }, {t: jwt.token}, signal).then((data) => {
-        if (data.error) {
-          setValues({...values, error: data.error, 'redirect': true})
-        } else {
-          setValues({...values, name: data.charity[0].name})
-        }
+      }, { t: jwt.token }, signal)
+
+      let count = 0;
+      await data.donation.forEach(async (d) => {
+
+        const abortController2 = new AbortController()
+        const signal2 = abortController.signal
+        // console.log('in for each', d)
+        const userId = d.owner;
+        let newData = await listByName({
+          userId: userId
+        }, { t: jwt.token }, signal2);
+
+        
+
+        // d.username = newData.name
+        console.log('newData', newData)
+        data.donation[count].username = newData[0].owner.name
+        setOrders(data.donation)
+
+        count += 1;
       })
       
       listByName({
@@ -130,14 +128,68 @@ export default function CharityDonations({match}) {
     if (values.redirect) {
       return (<Redirect to={'/charity/charities'}/>)
     }
-   
-    const getTotal = () => {
-        return orders.reduce((amount, b) => {
-           return amount + b.amount
-        }, 0)
+
+
+    return function cleanup() {
+      abortController.abort()
+    }
+  
+
+
+
+  // useEffect(() => {
+  //   const abortController = new AbortController()
+  //   const signal = abortController.signal
+  //   listByOwner({
+  //     charityId: match.params.charityId
+  //   }, { t: jwt.token }, signal).then((data) => {
+  //     if (data.error) {
+  //       setValues({ ...values, error: data.error, 'redirect': true })
+  //     } else {
+  //       setValues({ ...values, name: data.charity[0].name })
+  //     }
+  //   })
+  //   return function cleanup() {
+  //     abortController.abort()
+  //   }
+  // }, [])
+
+  const handleChange = (event) => {
+    let userId = event
+    console.log("USERID", userId)
+    const abortController = new AbortController()
+    const signal = abortController.signal
+    listByName({
+      userId: userId
+    }, { t: jwt.token }, signal).then((data) => {
+      if (data.error) {
+        setOwner({ ...owner, error: data.error })
+      } else {
+        setOwner({ ...owner, name: data[0].owner.name })
       }
-    
-    return (
+    })
+    return function cleanup() {
+      abortController.abort()
+    }
+  }
+
+
+
+  // console.log("VALUES", values)
+  // console.log("Orders", orders)
+  //console.log("PARAMS", params)
+
+  if (values.redirect) {
+    return (<Redirect to={'/charity/charities'} />)
+  }
+
+  const getTotal = () => {
+    return orders.reduce((amount, b) => {
+      return amount + b.amount
+    }, 0)
+  }
+
+  return (
     <div>
       <Paper className={classes.root} elevation={4}>
         <Typography type="title" className={classes.title}>
@@ -152,7 +204,7 @@ export default function CharityDonations({match}) {
           <div className={classes.checkout}>
             <span className={classes.total}>Total: ${getTotal()}</span>
           </div>
-          </List>
+        </List>
       </Paper>
     </div>
   )
