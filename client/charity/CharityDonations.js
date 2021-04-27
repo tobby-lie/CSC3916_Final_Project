@@ -197,11 +197,12 @@ export default function CharityDonations({ match }) {
         <List dense >
           {orders.map((order, index) => {
             return   <span key={index}>
-                <ListItemText primary={'$' + order.amount}/>
+                <ListItemText primary={'$' + Math.round((order.amount) * 100) / 100}/>
+                
             </span>})
           }
           <div className={classes.checkout}>
-            <span className={classes.total}>Total: ${getTotal()}</span>
+            <span className={classes.total}>Total: ${Math.round((getTotal()) *100 ) / 100}</span>
           </div>
         </List>
       </Paper>
