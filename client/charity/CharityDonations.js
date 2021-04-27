@@ -94,7 +94,13 @@ export default function CharityDonations({ match }) {
       const signal = abortController.signal
       listByOwner({
         charityId: match.params.charityId
-      }, { t: jwt.token }, signal)
+      }, { t: jwt.token }, signal).then((data) => {
+        if (data.error) {
+          setValues({ ...values, error: data.error, 'redirect': true })
+        } else {
+          setValues({ ...values, name: data.charity[0].name })
+        }
+      })
 
       let count = 0;
       
