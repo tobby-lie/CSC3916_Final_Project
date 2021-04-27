@@ -69,6 +69,7 @@ export default function CharityDonations({match}) {
 
     const jwt = auth.isAuthenticated()
     useEffect(() => {
+      
       const abortController = new AbortController()
       const signal = abortController.signal
       listByCharity({
@@ -76,35 +77,22 @@ export default function CharityDonations({match}) {
       }, {t: jwt.token}, signal).then((data) => {
         if (data.error) {
           console.log(data)
-        } else {
-          console.log("DATA", data)
+        }else if (data.success === false)
+        {
+          return (<Redirect to={'/charity/charities'}/>)
+        }else {
+          
             setOrders(data.donation)
         }
       })
       return function cleanup(){
         abortController.abort()
       }
+    
     }, [])
 
-    /*useEffect(() =>{
-      const abortController = new AbortController()
-      const signal = abortController.signal
-      listByName({
-        userId: orders
-      }, {t: jwt.token}, signal).then((data) => {
-        if (data.error) {
-          setOwner({...owner, error: data.error})
-        } else {
-          setOwner({...owner, name: data.charity[0].name})
-        }
-      })
-      return function cleanup(){
-        abortController.abort()
-      }
-    }, [])*/
-
-    
     useEffect(() =>{
+      
       const abortController = new AbortController()
       const signal = abortController.signal
       listByOwner({
@@ -116,13 +104,27 @@ export default function CharityDonations({match}) {
           setValues({...values, name: data.charity[0].name})
         }
       })
+      
+      listByName({
+        userId: orders
+      }, {t: jwt.token}, signal).then((data) => {
+        if (data.error) {
+          setOwner({...owner, error: data.error})
+        } else {
+          console.log("DATA", data)
+          setOwner({...owner, name: data.charity[0].name})
+        }
+      })
       return function cleanup(){
         abortController.abort()
       }
+    
+    
     }, [])
     
     console.log("VALUES", values)
     console.log("Orders", orders)
+    console.log("OWNER", owner)
     //console.log("PARAMS", params)
 
     if (values.redirect) {
@@ -142,21 +144,16 @@ export default function CharityDonations({match}) {
           Donations for {values.name}
         </Typography>
         <List dense >
-        {console.log("RETURN ORDERS", orders)}
           {orders.map((order, index) => {
             return   <span key={index}>
-                <ListItemText primary={order.amount}/>
-              
-                
-              
-          </span>})
-          
-        }
+                <ListItemText primary={'$' + order.amount}/>
+            </span>})
+          }
           <div className={classes.checkout}>
             <span className={classes.total}>Total: ${getTotal()}</span>
           </div>
           </List>
       </Paper>
     </div>
-    )
+  )
 }
