@@ -56,7 +56,72 @@ const cart = {
       localStorage.removeItem('cart')
       cb()
     }
-  }
+  },
+
+  toggleDonation(val) {
+    if (typeof window !== "undefined") {
+      localStorage.setItem('donation', val)
+
+    }
+  },
+
+  getDonation() {
+    if (typeof window !== "undefined") {
+      console.log('donation', localStorage.getItem('donation'))
+      if (localStorage.getItem('donation') === 'true') {
+        return true
+      }
+      return false
+
+    }
+  },
+
+  getSubtotal() {
+    return this.getCart().reduce((a, b) => {
+      return a + (b.quantity * b.product.price)
+    }, 0)
+  },
+
+  getTotal() {
+    if (this.getDonation()) {
+      return this.getSubtotal() + this.calculateDonation()
+
+    } else {
+      return this.getSubtotal()
+
+    }
+  },
+
+  calculateDonation() {
+    return (Math.round(this.getSubtotal()) - this.getSubtotal())
+  },
+
+  getDonationObject() {
+
+    if (typeof window !== "undefined") {
+      if (localStorage.getItem('donationObject')) {
+        return JSON.parse(localStorage.getItem('donationObject'))
+      }
+    }
+    return []
+
+  },
+
+  editDonationObject(val) {
+
+    if (typeof window !== "undefined") {
+
+      localStorage.setItem('donationObject',JSON.stringify(val))
+
+    }
+
+  },
+
+
+
+
+
+
 }
 
 export default cart

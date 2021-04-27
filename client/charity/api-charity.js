@@ -27,7 +27,6 @@ const create = async (params, credentials, shop) => {
       console.log(err)
     }
   }
-
   const listByOwner = async (params, credentials, signal) => {
     try {
       let response = await fetch('/api/charities/by/'+params.userId, {
@@ -77,7 +76,6 @@ const create = async (params, credentials, shop) => {
       console.log(err)
     }
   }
-
   const remove = async (params, credentials) => {
     try {
       let response = await fetch('/api/charities/' + params.shopId, {
@@ -94,7 +92,6 @@ const create = async (params, credentials, shop) => {
       console.log(err)
     }
   }
-
   export {
     create,
     list,

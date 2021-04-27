@@ -4,11 +4,15 @@ import productCtrl from '../controllers/product.controller'
 import authCtrl from '../controllers/auth.controller'
 import shopCtrl from '../controllers/shop.controller'
 import userCtrl from '../controllers/user.controller'
+import donationCtrl from '../controllers/donation.controller'
 
 const router = express.Router()
 
 router.route('/api/orders/:userId')
-  .post(authCtrl.requireSignin, userCtrl.stripeCustomer, productCtrl.decreaseQuantity, orderCtrl.create)
+  .post(authCtrl.requireSignin, userCtrl.stripeCustomer, productCtrl.decreaseQuantity,
+    donationCtrl.create2,
+    orderCtrl.create
+  )
 
 router.route('/api/orders/shop/:shopId')
   .get(authCtrl.requireSignin, shopCtrl.isOwner, orderCtrl.listByShop)
