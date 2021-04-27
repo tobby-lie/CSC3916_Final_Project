@@ -52,7 +52,7 @@ const useStyles = makeStyles(theme => ({
 
 
 export default function CharityDonations({ match }) {
-  console.log("DONATIONS MATCH: ", match)
+  // console.log("DONATIONS MATCH: ", match)
   const classes = useStyles()
   const [orders, setOrders] = useState([])
   const [values, setValues] = useState({
@@ -68,42 +68,43 @@ export default function CharityDonations({ match }) {
   })
 
   const jwt = auth.isAuthenticated()
+
   useEffect(async () => {
+
     const abortController = new AbortController()
     const signal = abortController.signal
-    // listByCharity({
-    //   charityId: match.params.charityId
-    // }, {t: jwt.token}, signal).then((data) => {
-    //   if (data.error) {
-    //     console.log(data)
-    //   } else {
-    //     console.log("DATA", data)
-    //     for (let i = 0; i < data.donation.length; i++) {
-    //       const userId = data.donation[i];
-    //       listByName({
-    //         userId: userId
-    //     }, {t: jwt.token}, signal).then((userData) => {
-    //       if (userData.error) {
-    //         setOwner({...owner, error: data.error})
-    //       } else{
 
-    //         data.donation[i].username = userData[0].owner.name
-    //       }
-    //     }).catch(error => {
-    //       console.log("ERROR", error)
-    //     })
-    //     }
-
-    //   }
-    // })
     try {
       let data = await listByCharity({
         charityId: match.params.charityId
       }, { t: jwt.token }, signal)
 
+      let count = 0;
+      await data.donation.forEach(async (d) => {
+
+        const abortController2 = new AbortController()
+        const signal2 = abortController.signal
+        // console.log('in for each', d)
+        const userId = d.owner;
+        let newData = await listByName({
+          userId: userId
+        }, { t: jwt.token }, signal2);
+
+        
+
+        // d.username = newData.name
+        console.log('newData', newData)
+        data.donation[count].username = newData[0].owner.name
+        setOrders(data.donation)
+
+        count += 1;
+      })
+
+
       console.log('data', data)
+      setOrders(data.donation)
     } catch (error) {
-
+      console.log('errorrr', error)
     }
 
 
@@ -114,22 +115,22 @@ export default function CharityDonations({ match }) {
 
 
 
-  useEffect(() => {
-    const abortController = new AbortController()
-    const signal = abortController.signal
-    listByOwner({
-      charityId: match.params.charityId
-    }, { t: jwt.token }, signal).then((data) => {
-      if (data.error) {
-        setValues({ ...values, error: data.error, 'redirect': true })
-      } else {
-        setValues({ ...values, name: data.charity[0].name })
-      }
-    })
-    return function cleanup() {
-      abortController.abort()
-    }
-  }, [])
+  // useEffect(() => {
+  //   const abortController = new AbortController()
+  //   const signal = abortController.signal
+  //   listByOwner({
+  //     charityId: match.params.charityId
+  //   }, { t: jwt.token }, signal).then((data) => {
+  //     if (data.error) {
+  //       setValues({ ...values, error: data.error, 'redirect': true })
+  //     } else {
+  //       setValues({ ...values, name: data.charity[0].name })
+  //     }
+  //   })
+  //   return function cleanup() {
+  //     abortController.abort()
+  //   }
+  // }, [])
 
   const handleChange = (event) => {
     let userId = event
@@ -152,8 +153,8 @@ export default function CharityDonations({ match }) {
 
 
 
-  console.log("VALUES", values)
-  console.log("Orders", orders)
+  // console.log("VALUES", values)
+  // console.log("Orders", orders)
   //console.log("PARAMS", params)
 
   if (values.redirect) {
@@ -173,12 +174,14 @@ export default function CharityDonations({ match }) {
           Donations for {values.name}
         </Typography>
         <List dense >
-          {console.log("RETURN ORDERS", orders)}
           {orders.map((order, index) => {
             return <span key={index}>
+              <p>{order.username}</p>
               {/*{handleChange(order.owner)}*/}
-              <ListItemText primary={owner.userName} secondary={order.amount} />
-
+              {/* <ListItemText primary={order.username} secondary={'$' + order.amount} />
+            <pre>
+              {JSON.stringify(order)}
+            </pre> */}
 
 
 

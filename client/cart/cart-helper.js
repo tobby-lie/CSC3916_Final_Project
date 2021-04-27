@@ -94,7 +94,28 @@ const cart = {
 
   calculateDonation() {
     return (Math.round(this.getSubtotal()) - this.getSubtotal())
-  }
+  },
+
+  getDonationObject() {
+
+    if (typeof window !== "undefined") {
+      if (localStorage.getItem('donationObject')) {
+        return JSON.parse(localStorage.getItem('donationObject'))
+      }
+    }
+    return []
+
+  },
+
+  editDonationObject(val) {
+
+    if (typeof window !== "undefined") {
+
+      localStorage.setItem('donationObject',JSON.stringify(val))
+
+    }
+
+  },
 
 
 

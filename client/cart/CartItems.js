@@ -155,9 +155,16 @@ export default function CartItems(props) {
     props.setCheckout(true)
   }
 
-  const setDonate = (val) => {
+  const setDonate = (val, charityId) => {
     console.log('setting donate')
     cart.toggleDonation(val)
+    if (val == true) {
+      cart.editDonationObject({amount: cart.calculateDonation(), charityId: charityId})
+
+    } else {
+      cart.editDonationObject({})
+
+    }
     setDonation(val)
   }
 
@@ -260,7 +267,7 @@ export default function CartItems(props) {
                         'val: ' + donation + ", type: " + typeof (donation)
                       } */}
                       {
-                        (donation == false) ? <Button color="secondary" variant="contained" onClick={() => setDonate(true)}>Round Up $1 and Donate to this Charity</Button>
+                        (donation == false) ? <Button color="secondary" variant="contained" onClick={() => setDonate(true, charity._id)}>Round Up $1 and Donate to this Charity</Button>
                           :
                           <p>Thank You!</p>
                       }
@@ -292,20 +299,12 @@ export default function CartItems(props) {
         </Card>
 
 
-
-
-
-
-
-
-
-
         <div className={classes.checkout}>
 
           {
             donation &&
             <>
-              <Button color="primary" variant="contained" onClick={() => setDonate(false)}>X Cancel Donation</Button>
+              <Button color="primary" variant="contained" onClick={() => setDonate(false, '')}>X Cancel Donation</Button>
 
               <div className={classes.total}>Charity Round Up: ${Math.round((cart.calculateDonation()) * 100) / 100}
 

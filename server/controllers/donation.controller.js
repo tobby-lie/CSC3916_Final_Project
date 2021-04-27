@@ -8,25 +8,69 @@ import Charity from "../models/charity.model";
 var jwt = require('jsonwebtoken')
 
 const create = (req, res) => {
+    if (req.body.order.donation) {
+        req.body.amount = req.body.order.donation.amount;
+        req.body.charityId = req.body.order.donation.charityId;
+
+    }
     if (!req.body.amount || !req.body.charityId) {
-        return res.json({success: false, message: "missing amount or charityId"})
+        return res.json({ success: false, message: "missing amount or charityId" })
     } else {
         const donation = new Donation(req.body)
-        donation.owner= req.params.userId
+        donation.owner = req.params.userId
 
-        Charity.findById({"_id": req.body.charityId}, function(err, charity) {
+        Charity.findById({ "_id": req.body.charityId }, function (err, charity) {
             if (err) {
-                return res.status(403).json({success: false, message: "Unable to post donation for charity passed in."})
+                return res.status(403).json({ success: false, message: "Unable to post donation for charity passed in." })
             } else if (!charity) {
-                return res.status(403).json({success: false, message: "Unable to find charity passed in."})
+                return res.status(403).json({ success: false, message: "Unable to find charity passed in." })
             } else {
                 donation.charity = charity._id;
 
-                donation.save (function(err) {
+                donation.save(function (err) {
                     if (err) {
-                        return res.status(403).json({success: false, message: "unable to post donation for charity passed in"})
+                        return res.status(403).json({ success: false, message: "unable to post donation for charity passed in" })
                     } else {
-                        return res.status(200).json({success: true, message: "successfully saved donation for charity passed in", donation: donation})
+                        req.body.order.donation = donation._id;
+                        return res.status(200).json({ success: true, message: "successfully saved donation for charity passed in", donation: donation })
+                    }
+                })
+            }
+        })
+    }
+}
+
+
+const create2 = (req, res, next) => {
+    if (req.body.order.donation) {
+        req.body.amount = req.body.order.donation.amount;
+        req.body.charityId = req.body.order.donation.charityId;
+
+    } else {
+        req.body.order.donation = ''
+    }
+    if (!req.body.amount || !req.body.charityId) {
+        // return res.json({ success: false, message: "missing amount or charityId" })
+        next()
+    } else {
+        const donation = new Donation(req.body)
+        donation.owner = req.params.userId
+
+        Charity.findById({ "_id": req.body.charityId }, function (err, charity) {
+            if (err) {
+                return res.status(403).json({ success: false, message: "Unable to post donation for charity passed in." })
+            } else if (!charity) {
+                return res.status(403).json({ success: false, message: "Unable to find charity passed in." })
+            } else {
+                donation.charity = charity._id;
+
+                donation.save(function (err) {
+                    if (err) {
+                        return res.status(403).json({ success: false, message: "unable to post donation for charity passed in" })
+                    } else {
+                        req.body.order.donation = donation._id;
+                        // return res.status(200).json({ success: true, message: "successfully saved donation for charity passed in", donation: donation })
+                        next()
                     }
                 })
             }
@@ -35,9 +79,9 @@ const create = (req, res) => {
 }
 
 const one = async (req, res) => {
-    Donation.find({"_id": req.params.donationId}).select("amount owner charity").exec(function (err, donation) {
+    Donation.find({ "_id": req.params.donationId }).select("amount owner charity").exec(function (err, donation) {
         if (err) {
-            return res.status(403).json({success: false, message: "Unable to retrieve charity passed in."});
+            return res.status(403).json({ success: false, message: "Unable to retrieve charity passed in." });
         }
         if (donation && donation.length > 0) {
             return res.status(200).json({
@@ -71,7 +115,7 @@ const donationByID = async (req, res, next, id) => {
 }
 
 const defaultPhoto = (req, res) => {
-    return res.sendFile(process.cwd()+defaultImage)
+    return res.sendFile(process.cwd() + defaultImage)
 }
 
 const read = (req, res) => {
@@ -81,29 +125,29 @@ const read = (req, res) => {
 
 const update = (req, res) => {
     console.log('i am running')
-    if(!req.body.updated_donation) {
-        return res.json( { success: false, message: "Must pass in updated donation info"})
+    if (!req.body.updated_donation) {
+        return res.json({ success: false, message: "Must pass in updated donation info" })
     } else {
-        Donation.findByIdAndUpdate({"_id": req.params.donationId}, req.body.updated_donation, function(err, donation) {
+        Donation.findByIdAndUpdate({ "_id": req.params.donationId }, req.body.updated_donation, function (err, donation) {
             if (err) {
-                return res.status(403).json( { success: false, message: "unable to update charity"})
+                return res.status(403).json({ success: false, message: "unable to update charity" })
             } else if (!donation) {
-                return res.status(403).json({success: false, message: "unable to find charity to update"})
+                return res.status(403).json({ success: false, message: "unable to find charity to update" })
             } else {
-                return res.status(200).json({success: true, message: "successfully updated charity"})
+                return res.status(200).json({ success: true, message: "successfully updated charity" })
             }
         })
     }
 }
 
 const remove = (req, res) => {
-    Donation.findOneAndDelete({"_id": req.params.donationId}, function(err, donation) {
+    Donation.findOneAndDelete({ "_id": req.params.donationId }, function (err, donation) {
         if (err) {
-            return res.status(403).json({success: false, message: "Error deleting charity"})
+            return res.status(403).json({ success: false, message: "Error deleting charity" })
         } else if (!donation) {
-            return res.status(403).json({success: false, message: "No charity found to delete."})
+            return res.status(403).json({ success: false, message: "No charity found to delete." })
         } else {
-            return res.status(200).json({success: true, message: "Successfully deleted charity."})
+            return res.status(200).json({ success: true, message: "Successfully deleted charity." })
         }
     })
 }
@@ -112,7 +156,7 @@ const list = async (req, res) => {
     try {
         let donations = await Donation.find()
         res.json(donations)
-    } catch (err){
+    } catch (err) {
         return res.status(400).json({
             error: errorHandler.getErrorMessage(err)
         })
@@ -121,9 +165,9 @@ const list = async (req, res) => {
 
 const listByOwner = async (req, res) => {
     try {
-        let donations = await Donation.find({owner: req.profile._id}).populate('owner', '_id name')
+        let donations = await Donation.find({ owner: req.profile._id }).populate('owner', '_id name')
         res.json(donations)
-    } catch (err){
+    } catch (err) {
         return res.status(400).json({
             error: errorHandler.getErrorMessage(err)
         })
@@ -131,9 +175,9 @@ const listByOwner = async (req, res) => {
 }
 
 const listByCharity = async (req, res) => {
-    Donation.find({"charity": req.params.charityId}).select("amount owner charity").exec(function (err, donations) {
+    Donation.find({ "charity": req.params.charityId }).select("amount owner charity").exec(function (err, donations) {
         if (err) {
-            return res.status(403).json({success: false, message: "Unable to retrieve donations from charity passed in."});
+            return res.status(403).json({ success: false, message: "Unable to retrieve donations from charity passed in." });
         }
         if (donations && donations.length > 0) {
             return res.status(200).json({
@@ -153,6 +197,7 @@ const listByCharity = async (req, res) => {
 export default {
     one,
     create,
+    create2,
     donationByID,
     defaultPhoto,
     list,
