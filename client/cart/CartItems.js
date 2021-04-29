@@ -135,6 +135,7 @@ export default function CartItems(props) {
 
     setCartItems([...updatedCartItems])
     cart.updateCart(index, event.target.value)
+    setDonate(cart.getDonation(), cart.getDonationObject().charityId)
 
 
   }
@@ -159,7 +160,7 @@ export default function CartItems(props) {
     console.log('setting donate')
     cart.toggleDonation(val)
     if (val == true) {
-      cart.editDonationObject({amount: cart.calculateDonation(), charityId: charityId})
+      cart.editDonationObject({ amount: cart.calculateDonation(), charityId: charityId })
 
     } else {
       cart.editDonationObject({})
