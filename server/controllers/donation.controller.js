@@ -5,7 +5,9 @@ import formidable from 'formidable'
 import fs from 'fs'
 import defaultImage from './../../client/assets/images/default.png'
 import Charity from "../models/charity.model";
+import { Mongoose } from 'mongoose'
 var jwt = require('jsonwebtoken')
+var mongoose = require('mongoose')
 
 const create = (req, res) => {
     if (req.body.order.donation) {
@@ -175,23 +177,56 @@ const listByOwner = async (req, res) => {
 }
 
 const listByCharity = async (req, res) => {
-    Donation.find({ "charity": req.params.charityId }).select("amount owner charity").exec(function (err, donations) {
-        if (err) {
-            return res.status(403).json({ success: false, message: "Unable to retrieve donations from charity passed in." });
-        }
-        if (donations && donations.length > 0) {
-            return res.status(200).json({
-                success: true,
-                message: "Successfully retrieved donations from charity.",
-                donation: donations
-            });
-        } else {
-            return res.status(404).json({
-                success: false,
-                message: "Unable to retrieve a match for donations from charity passed in."
-            });
-        }
-    })
+    console.log("LISTBYCHARITY", req.params.charityId)
+    Donation.aggregate([
+        {
+            $match:{
+                charity: mongoose.Types.ObjectId(req.params.charityId)
+        }},
+            {
+                $lookup: {
+                    from: "users",
+                    localField: "owner",
+                    foreignField: "_id",
+                    as: "results"
+                }
+            }
+        
+    ]).exec(function (err, donations) {
+            if (err) {
+                console.log("ERROR", err)
+                return res.status(403).json({ success: false, message: "Unable to retrieve donations from charity passed in." });
+            }
+            if (donations && donations.length > 0) {
+                return res.status(200).json({
+                    success: true,
+                    message: "Successfully retrieved donations from charity.",
+                    donation: donations
+                });
+            } else {
+                return res.status(404).json({
+                    success: false,
+                    message: "Unable to retrieve a match for donations from charity passed in."
+                });
+            }
+        })
+    // Donation.find({ "charity": req.params.charityId }).select("amount owner charity").exec(function (err, donations) {
+    //     if (err) {
+    //         return res.status(403).json({ success: false, message: "Unable to retrieve donations from charity passed in." });
+    //     }
+    //     if (donations && donations.length > 0) {
+    //         return res.status(200).json({
+    //             success: true,
+    //             message: "Successfully retrieved donations from charity.",
+    //             donation: donations
+    //         });
+    //     } else {
+    //         return res.status(404).json({
+    //             success: false,
+    //             message: "Unable to retrieve a match for donations from charity passed in."
+    //         });
+    //     }
+    // })
 }
 
 export default {

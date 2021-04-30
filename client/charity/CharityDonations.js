@@ -29,7 +29,7 @@ const useStyles = makeStyles(theme => ({
   subheading: {
     marginTop: theme.spacing(1),
     color: '#434b4e',
-    fontSize: '1.1em'
+    fontSize: '1em'
   },
   customerDetails: {
     paddingLeft: '36px',
@@ -102,18 +102,18 @@ export default function CharityDonations({ match }) {
         }
       })
 
-      let count = 0;
+      // let count = 0;
       
-      listByName({
-        userId: orders
-      }, {t: jwt.token}, signal).then((data) => {
-        if (data.error) {
-          setOwner({...owner, error: data.error})
-        } else {
-          console.log("DATA", data)
-          setOwner({...owner, name: data.charity[0].name})
-        }
-      })
+      // listByName({
+      //   userId: orders
+      // }, {t: jwt.token}, signal).then((data) => {
+      //   if (data.error) {
+      //     setOwner({...owner, error: data.error})
+      //   } else {
+      //     console.log("DATA", data)
+      //     setOwner({...owner, name: data.charity[0].name})
+      //   }
+      // })
       return function cleanup(){
         abortController.abort()
       }
@@ -130,30 +130,7 @@ export default function CharityDonations({ match }) {
       return (<Redirect to={'/charity/charities'}/>)
     }
 
-
-    
-  
-
-
-
-  // useEffect(() => {
-  //   const abortController = new AbortController()
-  //   const signal = abortController.signal
-  //   listByOwner({
-  //     charityId: match.params.charityId
-  //   }, { t: jwt.token }, signal).then((data) => {
-  //     if (data.error) {
-  //       setValues({ ...values, error: data.error, 'redirect': true })
-  //     } else {
-  //       setValues({ ...values, name: data.charity[0].name })
-  //     }
-  //   })
-  //   return function cleanup() {
-  //     abortController.abort()
-  //   }
-  // }, [])
-
-  const handleChange = (event) => {
+    const handleChange = (event) => {
     let userId = event
     console.log("USERID", userId)
     const abortController = new AbortController()
@@ -171,12 +148,6 @@ export default function CharityDonations({ match }) {
       abortController.abort()
     }
   }
-
-
-
-  // console.log("VALUES", values)
-  // console.log("Orders", orders)
-  //console.log("PARAMS", params)
 
   if (values.redirect) {
     return (<Redirect to={'/charity/charities'} />)
@@ -197,7 +168,16 @@ export default function CharityDonations({ match }) {
         <List dense >
           {orders.map((order, index) => {
             return   <span key={index}>
-                <ListItemText primary={'$' + Math.round((order.amount) * 100) / 100}/>
+                <Typography type="title" className={classes.subheading}>
+                   Name: {order.results[0].name} 
+                </Typography>
+                <Typography type="title" className={classes.subheading}>
+                   Email: {order.results[0].email}
+                </Typography>
+                <Typography type="title" className={classes.subheading}>
+                   Amount: ${Math.round((order.amount) * 100) / 100} 
+                </Typography>
+                {/*<ListItemText  primary={order.results[0].name} secondary={'$' + Math.round((order.amount) * 100) / 100} />*/}
                 
             </span>})
           }
